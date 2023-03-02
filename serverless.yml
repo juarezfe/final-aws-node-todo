@@ -2,7 +2,7 @@ service: final-aws-node-todo
 frameworkVersion: '3'
 
 custom:
-  tableName: 'users-table-${sls:stage}'
+  tableName: 'todo-table-${sls:stage}'
 
 provider:
   name: aws
@@ -10,7 +10,7 @@ provider:
   iam:
     role:
       statements:
-        - Effect: Allow
+        - Effect: 'Allow'
           Action:
             - dynamodb:Query
             - dynamodb:Scan
@@ -19,7 +19,7 @@ provider:
             - dynamodb:UpdateItem
             - dynamodb:DeleteItem
           Resource:
-            - Fn::GetAtt: [ UsersTable, Arn ]
+            - Fn::GetAtt: [ TodoTable, Arn ]
   environment:
     TODO_TABLE: ${self:custom.tableName}
 
@@ -34,14 +34,14 @@ functions:
 
 resources:
   Resources:
-    UsersTable:
+    TodoTable:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
-          - AttributeName: userId
+          - AttributeName: id
             AttributeType: S
         KeySchema:
-          - AttributeName: userId
+          - AttributeName: id
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:custom.tableName}

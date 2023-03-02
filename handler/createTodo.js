@@ -1,15 +1,40 @@
-const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
-const {
-  DynamoDBDocumentClient
-} = require("@aws-sdk/lib-dynamodb");
+const AWS = require("aws-sdk");
+const uuid = require("uuid")
 
 const TODO_TABLE = process.env.TODO_TABLE;
-const client = new DynamoDBClient();
-const dynamoDb = DynamoDBDocumentClient.from(client);
+const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
-exports.createTodo = async (event, context) => {
-    return {
-        statusCode: 200,
-        body: JSON.stringify({message: "Hello"})
+module.exports.createTodo = async (event, context, callback) => {
+    const timestamp =  new Date().getTime()
+    const data = JSON.parse(event.body)
+    if (typeof data.todo !== "string") {
+        console.error("Validation Failed");
+        return;
     }
+
+    const params = {
+        TableName: TODO_TABLE,
+        Item: {
+            userId: uuid.v1(),
+            todo: data.todo,
+            checked: false,
+            createdAt: timestamp,
+            updateAt: timestamp
+        }
+    }
+
+    dynamoDb.put(params,(error, data) => {
+        if (error) {
+            console.error(error);
+            callback(new Error(error));
+            return;
+        }
+        // create a response
+        const response =  {
+            statusCode: 200,
+            body: JSON.stringify(data.Item)
+        }
+        callback(null, response)
+    })
+
 }

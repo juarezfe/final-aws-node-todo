@@ -38,6 +38,20 @@ functions:
           path: todos/list
           method: get
           cors: true
+  get:
+    handler: handler/getTodo.getTodo
+    events:
+      - http:
+          path: todos/{id}
+          method: get
+          cors: true
+  delete:
+    handler: handler/deleteTodo.deleteTodo
+    events:
+      - http:
+          path: todos/{id}
+          method: delete
+          cors: true
 
 resources:
   Resources:
